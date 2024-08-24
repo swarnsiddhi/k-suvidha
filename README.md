@@ -133,7 +133,7 @@ K-Suvidha is built on a modular framework, integrating multiple features into a 
 
 6. **Run the application**:
    ```bash
-   flask run
+   python server.py
    ```
 
 7. **Access the application**:
