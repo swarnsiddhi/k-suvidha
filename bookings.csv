@@ -1,0 +1,6 @@
+id,EquipmentID,UserID,Status
+1,1,1,Completed
+2,3,2,Active
+3,1,some_user_id,Active
+4,4,some_user_id,Active
+5,2,some_user_id,Active

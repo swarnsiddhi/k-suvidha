@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Signup</title>
+    <link rel="stylesheet" href="static/login.css">
+
+</head>
+<body>
+    <div class="container" id="authContainer">
+        <h1 id="formTitle">Login</h1>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="window.location.href='marketplace';">Login</button>
+        <p class="switch" onclick="toggleForm()">Don't have an account? Sign up</p>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const formTitle = document.getElementById("formTitle");
+            const authContainer = document.getElementById("authContainer");
+            const switchText = document.querySelector(".switch");
+            const button = authContainer.querySelector("button");
+
+            if (formTitle.textContent === "Login") {
+                formTitle.textContent = "Sign Up";
+                switchText.textContent = "Already have an account? Login";
+                button.textContent = "Sign Up";
+            } else {
+                formTitle.textContent = "Login";
+                switchText.textContent = "Don't have an account? Sign up";
+                button.textContent = "Login";
+            }
+        }
+
+        function authenticate() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            alert(`${document.getElementById("formTitle").textContent} successful for user: ${username}`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+}
+
+.main-navbar {
+    background-color: #222;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 101; /* Above the crop navbar */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.main-navbar .brand-name {
+    font-size: 24px;
+    color: #28a745;
+    font-weight: bold;
+    margin: 0;
+}
+
+.main-navbar .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px; /* Space between links */
+}
+
+.main-navbar .nav-links li {
+    display: inline-block;
+}
+
+.main-navbar .nav-links a {
+    text-decoration: none;
+    color: #e0e0e0;
+    padding: 10px 15px;
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.main-navbar .nav-links a:hover {
+    background-color: #28a745;
+    color: #ffffff;
+    border-radius: 4px;
+}
+
+/* Adjust content position based on navbar height */
+.navbar {
+    margin-top: 60px; /* Adjusted for main navbar */
+}
+
+.container {
+    margin-top: 120px; /* Adjusted for both navbars */
+}
+
+
+.navbar a {
+    float: left;
+    display: block;
+    color: #e0e0e0;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.navbar a:hover {
+    background-color: #575757;
+    color: white;
+}
+
+.container {
+    background-color: #1f1f1f;
+    padding: 20px;
+    width: 100%;
+    height: calc(100vh - 60px); /* Full height minus navbar height */
+    margin-top: 60px; /* Adjust according to navbar height */
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start; /* Start cards from the top */
+    justify-content: flex-start; /* Align cards to the left */
+    gap: 20px; /* Space between cards */
+    overflow-y: auto; /* Allow scrolling if cards overflow the screen */
+}
+
+.card {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    width: 340px;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #ffffff;
+}
+
+.card input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    background-color: #2b2b2b;
+    color: #e0e0e0;
+}
+
+.card button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+}
+
+.card button:hover {
+    background-color: #218838;
+}
+
+#popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1f1f1f;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    color: #ffffff;
+    text-align: center;
+}
+
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 500;
+}
+

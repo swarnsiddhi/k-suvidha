@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer's Weather Page</title>
+    <style>
+        /* Include the provided CSS here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-navbar {
+            background-color: #222;
+            padding: 10px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 101; /* Above the crop navbar */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .main-navbar .brand-name {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .main-navbar .nav-links {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px; /* Space between links */
+        }
+
+        .main-navbar .nav-links li {
+            display: inline-block;
+        }
+
+        .main-navbar .nav-links a {
+            text-decoration: none;
+            color: #e0e0e0;
+            padding: 10px 15px;
+            font-size: 16px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .main-navbar .nav-links a:hover {
+            background-color: #28a745;
+            color: #ffffff;
+            border-radius: 4px;
+        }
+
+        .navbar {
+            margin-top: 60px; /* Adjusted for main navbar */
+        }
+
+        .container {
+            background-color: #1f1f1f;
+            padding: 20px;
+            width: 100%;
+            height: calc(100vh - 60px); /* Full height minus navbar height */
+            margin-top: 60px; /* Adjust according to navbar height */
+            box-sizing: border-box;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start; /* Start cards from the top */
+            justify-content: flex-start; /* Align cards to the left */
+            gap: 20px; /* Space between cards */
+            overflow-y: auto; /* Allow scrolling if cards overflow the screen */
+        }
+
+        .card {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 340px;
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #ffffff;
+        }
+
+        .card input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+        }
+
+        .card button {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .card button:hover {
+            background-color: #218838;
+        }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #1f1f1f;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-navbar">
+        <div class="brand-name">Farmer's Weather</div>
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Weather</a></li>
+            <li><a href="#">Crops</a></li>
+            <li><a href="#">Market</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <!-- Current Weather Conditions -->
+        <div class="card">
+            <h3>Current Weather</h3>
+            <p>Temperature: 25°C</p>
+            <p>Humidity: 60%</p>
+            <p>Wind: 12 km/h NW</p>
+            <p>Precipitation: 0 mm</p>
+            <p>UV Index: 5</p>
+            <p>Sunrise: 6:00 AM</p>
+            <p>Sunset: 6:45 PM</p>
+        </div>
+
+        <!-- Extended Forecast -->
+        <div class="card">
+            <h3>7-Day Forecast</h3>
+            <ul>
+                <li>Monday: 26°C / 14°C - Sunny</li>
+                <li>Tuesday: 28°C / 15°C - Partly Cloudy</li>
+                <li>Wednesday: 27°C / 13°C - Rainy</li>
+                <li>Thursday: 24°C / 12°C - Thunderstorms</li>
+                <li>Friday: 22°C / 11°C - Cloudy</li>
+                <li>Saturday: 25°C / 13°C - Sunny</li>
+                <li>Sunday: 29°C / 16°C - Sunny</li>
+            </ul>
+        </div>
+
+        <!-- Frost Alerts -->
+        <div class="card">
+            <h3>Frost Alerts</h3>
+            <p>No frost expected in the next 7 days.</p>
+        </div>
+
+        <!-- Drought Monitoring -->
+        <div class="card">
+            <h3>Drought Conditions</h3>
+            <p>Current Status: Normal</p>
+            <p>Soil Moisture: 65%</p>
+        </div>
+
+        <!-- Rainfall History and Predictions -->
+        <div class="card">
+            <h3>Rainfall History</h3>
+            <p>Past Week: 20 mm</p>
+            <p>Past Month: 80 mm</p>
+            <h3>Rainfall Predictions</h3>
+            <p>Next Week: 10-20 mm expected</p>
+        </div>
+
+        <!-- Pest and Disease Alerts -->
+        <div class="card">
+            <h3>Pest and Disease Alerts</h3>
+            <p>Potential pest outbreak due to increased humidity.</p>
+            <p>Risk of fungal diseases in wet areas.</p>
+        </div>
+
+        <!-- Irrigation Recommendations -->
+        <div class="card">
+            <h3>Irrigation Needs</h3>
+            <p>Recommended: Water crops tomorrow morning.</p>
+            <p>Evapotranspiration Rate: 4 mm/day</p>
+        </div>
+
+        <!-- Crop-Specific Weather Impacts -->
+        <div class="card">
+            <h3>Crop Growth Stages</h3>
+            <p>Wheat: Heading stage - Monitor for heat stress.</p>
+            <p>Corn: Vegetative stage - Ideal conditions.</p>
+        </div>
+
+        <!-- Extreme Weather Alerts -->
+        <div class="card">
+            <h3>Extreme Weather Alerts</h3>
+            <p>Severe thunderstorms expected on Thursday.</p>
+            <p>Flood warning in low-lying areas.</p>
+        </div>
+
+        <!-- Soil and Climate Data -->
+        <div class="card">
+            <h3>Soil and Climate Data</h3>
+            <p>Soil Temperature: 18°C</p>
+            <p>Climate Zone: Temperate</p>
+        </div>
+
+        <!-- Weather-Driven Market Insights -->
+        <div class="card">
+            <h3>Market Insights</h3>
+            <p>Expect rising commodity prices due to predicted drought.</p>
+            <p>Supply chain disruptions possible due to floods.</p>
+        </div>
+
+        <!-- Livestock Management -->
+        <div class="card">
+            <h3>Livestock Management</h3>
+            <p>Heat Stress Index: Moderate - Provide shade and water.</p>
+            <p>Cold Stress Alert: None expected this week.</p>
+        </div>
+
+        <!-- Location-Based Weather -->
+        <div class="card">
+            <h3>Check Weather by Location</h3>
+            <input type="number" placeholder="Enter Postal Code" id="postal-code">
+            <button id="check-weather">Check Weather</button>
+        </div>
+    </div>
+
+    <div id="popup">
+        <p>Weather data for location: <span id="location-result">...</span></p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+    <div id="overlay"></div>
+
+    <script>
+        document.getElementById("check-weather").onclick = function() {
+            var postalCode = document.getElementById("postal-code").value;
+            if (postalCode) {
+                // Replace with actual API call for weather data by postal code
+                document.getElementById("location-result").innerText = "Postal Code: " + postalCode;
+                showPopup();
+            }
+        };
+
+        function showPopup() {
+            document.getElementById("popup").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }
+    </script>
+</body>
+</html>

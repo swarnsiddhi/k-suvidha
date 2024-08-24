@@ -1,0 +1,3 @@
+ReviewID,UserID,EquipmentID,Rating,ReviewText,Timestamp
+1,1,1,5,"Excellent tractor, very powerful!",2024-08-23 18:00:00
+2,1,3,4,"Good pump, but could be more efficient.",2024-08-24 20:00:00

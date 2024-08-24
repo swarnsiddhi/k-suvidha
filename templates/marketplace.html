@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div class="main-navbar" id="mainNavbar">
+        <div class="brand-name">K सुविधा</div>
+        <ul class="nav-links">
+            <li><a href="/marketplace">Marketplace</a></li>
+            <li><a href="/prices">Prices</a></li>
+            <li><a href="/weather">Weather</a></li>
+            <li><a href="/rentals">Rentals</a></li>
+            <li><a href="#">Livestock</a></li>
+            <li><a href="#">Ground</a></li>
+            <li><a href="#">News & Articles</a></li>
+        </ul>
+        <div class="language-switch">
+            <label for="languageSelect">Language: </label>
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="navbar" id="navbar">
+        <!-- Adding 'All Crops' option -->
+        <a href="#" onclick="showAllCrops()">All Crops</a>
+        {% for crop, products in crops.items() %}
+            <a href="#" onclick="showProducts('{{ crop }}')">{{ crop }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="container" id="productContainer">
+        <!-- Product cards will be inserted here dynamically -->
+    </div>
+
+    <div id="popup">
+        <p>Sold successfully, inspector will shortly contact you.</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+    <div id="overlay"></div>
+
+    <script>
+        const crops = {{ crops | tojson }};  // Passing crop data from Flask to JavaScript
+
+        function showProducts(cropName) {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = '';
+
+            if (crops[cropName]) {
+                crops[cropName].forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const image = document.createElement('img');
+                    image.src = product.imageUrl;
+                    image.alt = product.type;
+                    image.style.width = '100%';
+                    image.style.height = '240px';  // Full width of the card
+                    image.style.borderRadius = '8px';
+
+                    const title = document.createElement('h3');
+                    title.textContent = product.type;
+
+                    const description = document.createElement('p');
+                    description.textContent = product.description;
+
+                    const quantityInput = document.createElement('input');
+                    quantityInput.type = 'number';
+                    quantityInput.id = `${product.type}-quantity`;
+                    quantityInput.min = 1;
+                    quantityInput.placeholder = 'Qty';
+
+                    const sellButton = document.createElement('button');
+                    sellButton.textContent = 'Sell';
+                    sellButton.onclick = function () {
+                        sellProduct(product.type);
+                    };
+
+                    card.appendChild(image);  // Add image to the card
+                    card.appendChild(title);
+                    card.appendChild(description);
+                    card.appendChild(quantityInput);
+                    card.appendChild(sellButton);
+
+                    container.appendChild(card);
+                });
+            }
+        }
+
+        function showAllCrops() {
+            const container = document.getElementById('productContainer');
+            container.innerHTML = '';  // Clear the container
+
+            for (const crop in crops) {
+                if (crops.hasOwnProperty(crop)) {
+                    crops[crop].forEach(product => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+
+                        const image = document.createElement('img');
+                        image.src = product.imageUrl;
+                        image.alt = product.type;
+                        image.style.width = '100%';
+                        image.style.height = '240px';  // Full width of the card
+                        image.style.borderRadius = '8px';
+
+                        const title = document.createElement('h3');
+                        title.textContent = product.type;
+
+                        const description = document.createElement('p');
+                        description.textContent = product.description;
+
+                        const quantityInput = document.createElement('input');
+                        quantityInput.type = 'number';
+                        quantityInput.id = `${product.type}-quantity`;
+                        quantityInput.min = 1;
+                        quantityInput.placeholder = 'Qty';
+
+                        const sellButton = document.createElement('button');
+                        sellButton.textContent = 'Sell';
+                        sellButton.onclick = function () {
+                            sellProduct(product.type);
+                        };
+
+                        card.appendChild(image);  // Add image to the card
+                        card.appendChild(title);
+                        card.appendChild(description);
+                        card.appendChild(quantityInput);
+                        card.appendChild(sellButton);
+
+                        container.appendChild(card);
+                    });
+                }
+            }
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        function sellProduct(productName) {
+            const quantity = document.getElementById(`${productName}-quantity`).value;
+            const seller = "Example Seller";  // Replace with actual seller info
+            const soldData = {
+                product: productName,
+                seller: seller,
+                quantity: quantity
+            };
+            const fileName = `${productName}_${Date.now()}.json`;
+            const fileContent = JSON.stringify(soldData);
+            
+            saveToServer(fileContent, fileName);
+
+            document.getElementById('popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function saveToServer(fileContent, fileName) {
+            fetch('/save-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ fileName: fileName, content: fileContent }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('File saved successfully:', data);
+            })
+            .catch((error) => {
+                console.error('Error saving file:', error);
+            });
+        }
+
+        // Automatically show all crops when the page loads
+        window.onload = function() {
+            showAllCrops();
+        };
+    </script>
+
+</body>
+</html>

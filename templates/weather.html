@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="/static/weather.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="main-navbar" id="mainNavbar">
+        <div class="brand-name">K सुविधा</div>
+        <ul class="nav-links">
+            <li><a href="/marketplace">Marketplace</a></li>
+            <li><a href="/prices">Prices</a></li>
+            <li><a href="/weather">Weather</a></li>
+            <li><a href="/rentals">Rentals</a></li>
+            <li><a href="#">Livestock</a></li>
+            <li><a href="#">Ground</a></li>
+            <li><a href="#">News & Articles</a></li>
+        </ul>
+        <div class="language-switch">
+            <label for="languageSelect">Language: </label>
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+    </div>
+    <div class="container">
+
+        <!-- Form to change the city -->
+        <form id="cityForm" action="/weather" method="get">
+            <input type="text" id="city" name="city" value="{{ city }}" required>
+            <button type="submit">Get Forecast</button>
+        </form>
+
+        <div class="forecast">
+            {% for day in forecast %}
+            <div class="card {% if day.weather.description == 'Thunderstorm' %}thunderstorm{% endif %}">
+                <div class="date">{{ day.datetime }}</div>
+                <div class="temp">{{ day.temp }}°C</div>
+                <div class="description">{{ day.weather.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <canvas id="humidityChart"></canvas>
+    </div>
+
+    <script>
+        // Pass the humidity data to JavaScript
+        const humidityData = {{ humidity | safe }};
+        const labels = {{ dates | safe }};
+
+        const ctx = document.getElementById('humidityChart').getContext('2d');
+        const humidityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Rain (%)',
+                    data: humidityData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

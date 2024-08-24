@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Equipment Rental System</title>
+    <link rel="stylesheet" href="static/rental.css">
+</head>
+<body>
+    <div class="main-navbar" id="mainNavbar">
+        <div class="brand-name">K सुविधा</div>
+        <ul class="nav-links">
+            <li><a href="/marketplace">Marketplace</a></li>
+            <li><a href="/prices">Prices</a></li>
+            <li><a href="/weather">Weather</a></li>
+            <li><a href="/rentals">Rentals</a></li>
+            <li><a href="#">Livestock</a></li>
+            <li><a href="#">Ground</a></li>
+            <li><a href="#">News & Articles</a></li>
+        </ul>
+        <div class="language-switch">
+            <label for="languageSelect">Language: </label>
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <label for="state">Select State:</label>
+        <select id="state">
+            <option value="">Select State</option>
+        </select>
+
+        <label for="district">Select District:</label>
+        <select id="district" disabled>
+            <option value="">Select District</option>
+        </select>
+
+        <button onclick="fetchEquipment()">Show Equipment</button>
+        <button onclick="findNearby()">Find Nearby</button> <!-- New Button -->
+
+        <div id="equipmentCards" class="cards-container">
+            <!-- Dynamically filled with equipment cards -->
+        </div>
+    </div>
+
+    <div id="overlay"></div>
+    <div id="popup">
+        <!-- Dynamically filled with vehicle info -->
+    </div>
+
+    <script>
+        const stateSelect = document.getElementById('state');
+        const districtSelect = document.getElementById('district');
+        const equipmentCards = document.getElementById('equipmentCards');
+        const overlay = document.getElementById('overlay');
+        const popup = document.getElementById('popup');
+
+        // Fetch and populate states dropdown
+        fetch('/states')
+            .then(response => response.json())
+            .then(states => {
+                stateSelect.innerHTML = '<option value="">Select State</option>';
+                states.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state;
+                    option.textContent = state;
+                    stateSelect.appendChild(option);
+                });
+            });
+
+        stateSelect.addEventListener('change', () => {
+            const selectedState = stateSelect.value;
+            if (selectedState) {
+                fetch(`/districts/${selectedState}`)
+                    .then(response => response.json())
+                    .then(districts => {
+                        districtSelect.innerHTML = '<option value="">Select District</option>';
+                        districts.forEach(district => {
+                            const option = document.createElement('option');
+                            option.value = district;
+                            option.textContent = district;
+                            districtSelect.appendChild(option);
+                        });
+                        districtSelect.disabled = false;
+                    });
+            } else {
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                districtSelect.disabled = true;
+            }
+        });
+
+        function fetchEquipment() {
+            const district = districtSelect.value;
+            fetch(`/equipment/${district}`)
+                .then(response => response.json())
+                .then(data => {
+                    equipmentCards.innerHTML = '';
+
+                    data.forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <img src="static/images/${item.Name.toLowerCase()}.jpg" alt="${item.Name}" class="equipment-image">
+                            <h3>${item.Name}</h3>
+                            <p>${item.Description}</p>
+                            <p>Category: ${item.Category}</p>
+                            <p>Price Per Hour: $${item.PricePerHour}</p>
+                            <p>Availability: ${item.AvailabilityStatus}</p>
+                            <button onclick="showRentPopup(${item.id})">Rent</button>
+                        `;
+                        equipmentCards.appendChild(card);
+                    });
+                });
+        }
+
+        function findNearby() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    fetch(`/nearby?lat=${latitude}&lng=${longitude}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            equipmentCards.innerHTML = '';
+
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    const card = document.createElement('div');
+                                    card.className = 'card';
+                                    card.innerHTML = `
+                                        <img src="static/images/${item.Name.toLowerCase()}.jpg" alt="${item.Name}" class="equipment-image">
+                                        <h3>${item.Name}</h3>
+                                        <p>${item.Description}</p>
+                                        <p>Category: ${item.Category}</p>
+                                        <p>Price Per Hour: $${item.PricePerHour}</p>
+                                        <p>Availability: ${item.AvailabilityStatus}</p>
+                                        <button onclick="showRentPopup(${item.id})">Rent</button>
+                                    `;
+                                    equipmentCards.appendChild(card);
+                                });
+                            } else {
+                                equipmentCards.innerHTML = '<p>No match found within 100 km radius.</p>';
+                            }
+                        });
+                }, () => {
+                    alert('Location access denied. Please enable location services.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        function showRentPopup(id) {
+            fetch(`/equipment/info/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    popup.innerHTML = `
+                        <h3>${data.Name}</h3>
+                        <p>Number Plate: ${data.NumberPlate}</p>
+                        <p>Village: ${data.Village}</p>
+                        <p>District: ${data.District}</p>
+                        <p>Owner Mobile: ${data.OwnerMobile}</p>
+                        <button onclick="rentEquipment(${id})">Confirm Rent</button>
+                    `;
+                    overlay.style.display = 'block';
+                    popup.style.display = 'block';
+                });
+        }
+
+        function rentEquipment(id) {
+            fetch(`/rent/${id}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Equipment rented successfully');
+                        overlay.style.display = 'none';
+                        popup.style.display = 'none';
+                        fetchEquipment();
+                    }
+                });
+        }
+
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            popup.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

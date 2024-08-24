@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commodity Prices</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='prices.css') }}">
+</head>
+
+<body>
+    <div class="main-navbar" id="mainNavbar">
+        <div class="brand-name">K सुविधा</div>
+        <ul class="nav-links">
+            <li><a href="/marketplace">Marketplace</a></li>
+            <li><a href="#/prices">Prices</a></li>
+            <li><a href="/weather">Weather</a></li>
+            <li><a href="/rentals">Rentals</a></li>
+            <li><a href="#">Livestock</a></li>
+            <li><a href="#">Ground</a></li>
+            <li><a href="#">News & Articles</a></li>
+        </ul>
+        <div class="language-switch">
+            <label for="languageSelect">Language: </label>
+            <select id="languageSelect">
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="filters">
+            <select id="stateFilter">
+                <option value="">Select State</option>
+            </select>
+            <select id="districtFilter">
+                <option value="">Select District</option>
+            </select>
+            <select id="marketFilter">
+                <option value="">Select Market</option>
+            </select>
+            <select id="commodityFilter">
+                <option value="">Select Commodity</option>
+            </select>
+            <select id="varietyFilter">
+                <option value="">Select Variety</option>
+            </select>
+        </div>
+
+        <div class="cards" id="commodityCards"></div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en'; // Default language is English
+
+        // Translate text using LibreTranslate API
+        async function translateText(text, targetLanguage) {
+            if (targetLanguage === 'en') return text; // No translation needed for English
+        
+            const response = await fetch(`https://libretranslate.com/translate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    q: text,
+                    target: targetLanguage,
+                    source: 'en', // Assuming the source language is English
+                    format: 'text',
+                }),
+            });
+        
+            const data = await response.json();
+            return data.translatedText;
+        }
+        
+        // Language switch event listener
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            currentLanguage = event.target.value;
+            displayCommodities(allData); // Refresh the displayed content in the selected language
+        });
+    </script>
+
+    <script>
+        let allData = [];
+
+        // Fetch initial data from the backend and store it
+        async function fetchData() {
+            const response = await fetch(`/fetch-gov-data`);
+            const data = await response.json();
+            allData = data;
+            populateDropdowns(data);
+            displayCommodities(data);
+        }
+
+        // Populate dropdown options based on the current selections
+        function populateDropdowns(filteredData) {
+            const stateSet = new Set();
+            const districtSet = new Set();
+            const marketSet = new Set();
+            const commoditySet = new Set();
+            const varietySet = new Set();
+
+            filteredData.forEach(record => {
+                stateSet.add(record.state);
+                districtSet.add(record.district);
+                marketSet.add(record.market);
+                commoditySet.add(record.commodity);
+                varietySet.add(record.variety);
+            });
+
+            updateDropdown(stateSet, 'stateFilter');
+            updateDropdown(districtSet, 'districtFilter');
+            updateDropdown(marketSet, 'marketFilter');
+            updateDropdown(commoditySet, 'commodityFilter');
+            updateDropdown(varietySet, 'varietyFilter');
+        }
+
+        function updateDropdown(set, dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.innerHTML = '<option value="">Select ' + dropdownId.replace('Filter', '') + '</option>'; // Clear previous options
+            set.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Handle filter changes and update data accordingly
+        function filterData() {
+            const state = document.getElementById('stateFilter').value;
+            const district = document.getElementById('districtFilter').value;
+            const market = document.getElementById('marketFilter').value;
+            const commodity = document.getElementById('commodityFilter').value;
+            const variety = document.getElementById('varietyFilter').value;
+
+            let filteredData = allData;
+
+            if (state) {
+                filteredData = filteredData.filter(record => record.state === state);
+            }
+            if (district) {
+                filteredData = filteredData.filter(record => record.district === district);
+            }
+            if (market) {
+                filteredData = filteredData.filter(record => record.market === market);
+            }
+            if (commodity) {
+                filteredData = filteredData.filter(record => record.commodity === commodity);
+            }
+            if (variety) {
+                filteredData = filteredData.filter(record => record.variety === variety);
+            }
+
+            // Update dropdown options based on filtered data
+            populateDropdowns(filteredData);
+
+            // Display the filtered data
+            displayCommodities(filteredData);
+        }
+
+        // Display the commodity data in card format with translation
+        async function displayCommodities(data) {
+            const cardsContainer = document.getElementById('commodityCards');
+            cardsContainer.innerHTML = ''; // Clear previous cards
+
+            for (const record of data) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+
+                const translatedCommodity = await translateText(`${record.commodity} (${record.variety})`, currentLanguage);
+                const translatedState = await translateText(`State: ${record.state}`, currentLanguage);
+                const translatedDistrict = await translateText(`District: ${record.district}`, currentLanguage);
+                const translatedMarket = await translateText(`Market: ${record.market}`, currentLanguage);
+                const translatedMinPrice = await translateText(`Min Price (per 100kg): ₹${record.min_price}`, currentLanguage);
+                const translatedMaxPrice = await translateText(`Max Price (per 100kg): ₹${record.max_price}`, currentLanguage);
+                const translatedModalPrice = await translateText(`Modal Price (per 100kg): ₹${record.modal_price}`, currentLanguage);
+
+                card.innerHTML = `
+                    <h3>${translatedCommodity}</h3>
+                    <p>${translatedState}</p>
+                    <p>${translatedDistrict}</p>
+                    <p>${translatedMarket}</p>
+                    <p>${translatedMinPrice}</p>
+                    <p>${translatedMaxPrice}</p>
+                    <p>${translatedModalPrice}</p>
+                `;
+
+                cardsContainer.appendChild(card);
+            }
+        }
+
+        // Event listeners for dropdown changes
+        document.getElementById('stateFilter').addEventListener('change', filterData);
+        document.getElementById('districtFilter').addEventListener('change', filterData);
+        document.getElementById('marketFilter').addEventListener('change', filterData);
+        document.getElementById('commodityFilter').addEventListener('change', filterData);
+        document.getElementById('varietyFilter').addEventListener('change', filterData);
+
+        // Initialize the dropdowns and display the initial data
+        fetchData();
+    </script>
+</body>
+
+</html>
