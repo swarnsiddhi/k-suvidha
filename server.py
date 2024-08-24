@@ -12,8 +12,8 @@ app = Flask(__name__)
 SAVE_DIRECTORY = 'saved_files'
 IMAGE_DIRECTORY = 'static/images'
 CSV_FILE_PATH = 'crop_data.csv'  # Path to your CSV file
-API_KEY = "1e441d8391794534b9bbf4e9ca6dd4ea"  # Your Weatherbit API key
-datagovin = DataGovIndia(api_key="579b464db66ec23bdd00000186bc564ca97b4f3270379f675cdae62a")
+API_KEY = os.getenv('WEATHERBIT_API_KEY')  # Your Weatherbit API key
+datagovin = DataGovIndia(api_key=os.getenv('DATA_GOV_API_KEY'))
 
 # Ensure directories exist
 if not os.path.exists(SAVE_DIRECTORY):
